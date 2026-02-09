@@ -2,6 +2,8 @@ package com.soham.selfteaching.spring.ai;
 
 import io.modelcontextprotocol.spec.McpSchema;
 import lombok.extern.slf4j.Slf4j;
+import org.springaicommunity.mcp.annotation.McpElicitation;
+import org.springaicommunity.mcp.annotation.McpLogging;
 import org.springaicommunity.mcp.annotation.McpProgress;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -40,4 +42,19 @@ public class McpClientApplication {
                 progressNotification.progressToken(), progressNotification.progress(),
                 progressNotification.total(), progressNotification.message());
     }
+
+
+    @McpLogging(clients = "ticketing-tool-streamable-v5-with-progress")
+    public void loggingHandler(McpSchema.LoggingMessageNotification loggingMessageNotification) {
+        log.info("MCP loggingHandler:  message: {}",
+                loggingMessageNotification.data());
+    }
+
+
+    @McpElicitation(clients = "ticketing-tool-streamable-v5-with-progress")
+    public void elicitationHandler(McpSchema.ElicitRequest elicitRequest) {
+        log.info("MCP elicitationHandler:  message: {}",
+                elicitRequest.message());
+    }
 }
+
