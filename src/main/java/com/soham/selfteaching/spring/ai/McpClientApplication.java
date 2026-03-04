@@ -35,26 +35,5 @@ public class McpClientApplication {
 //                        .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .build();
     }
-
-    @McpProgress(clients = "ticketing-tool-streamable-v5-with-progress")
-    public void progressHandler(McpSchema.ProgressNotification progressNotification) {
-        log.info("MCP PROGRESS: [{}] progress: {} total: {} message: {}",
-                progressNotification.progressToken(), progressNotification.progress(),
-                progressNotification.total(), progressNotification.message());
-    }
-
-
-    @McpLogging(clients = "ticketing-tool-streamable-v5-with-progress")
-    public void loggingHandler(McpSchema.LoggingMessageNotification loggingMessageNotification) {
-        log.info("MCP loggingHandler:  message: {}",
-                loggingMessageNotification.data());
-    }
-
-
-    @McpElicitation(clients = "ticketing-tool-streamable-v5-with-progress")
-    public void elicitationHandler(McpSchema.ElicitRequest elicitRequest) {
-        log.info("MCP elicitationHandler:  message: {}",
-                elicitRequest.message());
-    }
 }
 
