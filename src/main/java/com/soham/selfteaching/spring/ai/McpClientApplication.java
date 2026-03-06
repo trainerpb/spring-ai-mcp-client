@@ -31,14 +31,11 @@ public class McpClientApplication {
 
     @Bean
     public  ChatClient chatClient(ChatClient.Builder builder,SyncMcpToolCallbackProvider mcpToolCallbackProvider){
-        ChatMemory chatMemory = MessageWindowChatMemory.builder()
-                .chatMemoryRepository(new InMemoryChatMemoryRepository())
-                .maxMessages(10)
-                .build();
+
         return
                 builder
                 .defaultToolCallbacks(mcpToolCallbackProvider.getToolCallbacks())
-//                        .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+
                 .build();
     }
 
@@ -54,17 +51,17 @@ public class McpClientApplication {
     }
 
 
-    @McpElicitation(clients = "loan-bot-mcp-server")
+    @McpElicitation(clients = "spring-ai-mcp-one")
     public McpSchema.ElicitResult handleRequest(McpSchema.ElicitRequest request) {
         // 1. Show a Swing/JavaFX dialog, a CLI prompt, or a Web Socket message
         System.out.println("SERVER ASKS: " + request.message());
 
         // 2. Gather data (example using Scanner for CLI)
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
+        String confirmOrder = scanner.nextLine();
 
         // 3. Return the data back to the server
-        Map<String, Object> data = Map.of("postalCode", input);
+        Map<String, Object> data = Map.of("confirmOrder", confirmOrder);
         log.info("Sending elicited data back to server: {}", data);
         return new McpSchema.ElicitResult(McpSchema.ElicitResult.Action.ACCEPT, data);
     }
