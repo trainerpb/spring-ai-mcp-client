@@ -1,17 +1,20 @@
 package com.soham.selfteaching.spring.ai;
 
 import io.modelcontextprotocol.spec.McpSchema;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springaicommunity.mcp.annotation.McpElicitation;
 import org.springaicommunity.mcp.context.StructuredElicitResult;
+import org.springframework.ai.document.id.RandomIdGenerator;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.*;
+import java.util.random.RandomGenerator;
 
 /**
  * This class controls the HITL elcit req-response cycle
@@ -20,10 +23,15 @@ import java.util.concurrent.*;
  */
 @Component
 @RestController
+@CrossOrigin(origins = {"*"})
 @Slf4j
+@RequiredArgsConstructor
 public class ElicitationHandler {
 
     private final Map<String, CompletableFuture<StructuredElicitResult>> elicitations = new ConcurrentHashMap<>();
+
+    private final SimpMessagingTemplate messagingTemplate;
+
 
     /**
      * We cannot use console based Elicit interaction in HITL flow
@@ -44,7 +52,7 @@ public class ElicitationHandler {
     }
 
     private StructuredElicitResult<Map<String, Object>> getResult(McpSchema.ElicitRequest request) {
-        String requestId = UUID.randomUUID().toString(); //generate a requestId
+        String requestId =""+ Objects.hash(UUID.randomUUID().toString()); //generate a requestId
 
         CompletableFuture<StructuredElicitResult> future = CompletableFuture.supplyAsync(
                 ()->{
@@ -90,13 +98,18 @@ public class ElicitationHandler {
      * @param elicitRequest
      */
     private void sendRequestMessageToWebUser(Map<String, Object> elicitRequest) {
-        log.info("ElicitRequest ID: {}", elicitRequest.get("id").toString());
-        log.info("<<<<<<<<<<<<<<<<<<        Elicitation request was sent : {} ##################", elicitRequest.toString());
+
+        log.info("<<<<<<<<<<<<<<<<<<        Elicitation request was received : {} ##################", elicitRequest.toString());
+        log.info("Pushing Elicitation to WebSocket: {}", elicitRequest.get("id"));
+
+        // This sends the payload to all clients subscribed to /topic/elicitation
+        messagingTemplate.convertAndSend("/topic/elicitation", elicitRequest);
     }
 
     /**
      * Called when user clicks 'Submit' on the Web UI
      */
+
     @PostMapping("/elicit-response")
     public void onUserResponse(@RequestParam Map<String, Object> payload) {
         String id = (String) payload.get("id"); // Request Id
