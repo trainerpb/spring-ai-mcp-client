@@ -20,11 +20,12 @@ public class ChatController {
     @GetMapping("/chat")
     public CompletableFuture<String> chat(@RequestParam("m") String message){
         log.info("Received message: {}", message);
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(()->{
-            String response = chatClient.prompt().user(message).call().content();
+        return CompletableFuture.supplyAsync(()->{
+            String response = chatClient.prompt()
+                    .system("You are a virtual assistant for Ideal College of Engineering. You can answer questions about the college, its courses, admission process, campus facilities, and other related information. If you don't know the answer to a question, you can say 'I don't answer questions that are not relevant to the Institution. Please rephrase your question specifically'.")
+                    .user(message).call().content();
             return "Echo: " + response;
         });
-        return future;
 
     }
 }
